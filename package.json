@@ -1,0 +1,39 @@
+{
+  "name": "blog_list",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "lint": "eslint .",
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build:ui": "rm -rf build && cd ../leccion_02/phone_book && npm run build --prod && cp -r build ../../leccion_03",
+    "deploy": "git push",
+    "deploy:full": "npm run build:ui && git add . && git commit -m uibuild && npm run deploy"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Davidfhk/blog_list_api.git"
+  },
+  "author": "David Ignacio Martos",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Davidfhk/blog_list_api/issues"
+  },
+  "homepage": "https://github.com/Davidfhk/blog_list_api#readme",
+  "devDependencies": {
+    "nodemon": "^2.0.20",
+    "standard": "^17.0.0"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "mongoose": "^6.7.0",
+    "morgan": "^1.10.0"
+  },
+  "eslintConfig": {
+    "extends": "./node_modules/standard/eslintrc.json"
+  }
+}
