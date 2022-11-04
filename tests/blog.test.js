@@ -26,6 +26,16 @@ const newBlog = {
   likes: 3
 }
 
+const newBlogWithoutLikes = {
+  title: 'post without likes',
+  author: 'David without likes',
+  url: 'www.david.com'
+}
+
+const newBlogWithoutTitleAndUrl = {
+  author: 'David without likes'
+}
+
 beforeEach(async () => {
   await Blog.deleteMany({})
   let blogObject = new Blog(initialBlogs[0])
@@ -61,6 +71,22 @@ test('it should to create a new blog', async () => {
     .expect('Content-Type', /json/)
     .expect(200)
   expect(response.body).toHaveLength(initialBlogs.length + 1)
+})
+
+test('it should to check if likes is isset', async () => {
+  await request(app).post('/api/blogs')
+    .send(newBlogWithoutLikes)
+    .set('Accept', 'application/json')
+    .expect(201)
+  const blogWithoutLikes = await Blog.findOne({ author: 'David without likes' }).select('likes').exec()
+  expect(blogWithoutLikes.likes).toBe(0)
+})
+
+test('it should to return a status code 400 Bad Request', async () => {
+  await request(app).post('/api/blogs')
+    .send(newBlogWithoutTitleAndUrl)
+    .set('Accept', 'application/json')
+    .expect(400)
 })
 
 afterAll(async () => {
