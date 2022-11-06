@@ -44,49 +44,78 @@ beforeEach(async () => {
   await blogObject.save()
 })
 
-test('it should get all blogs', async () => {
-  const response = await request(app).get('/api/blogs')
-    .expect('Content-Type', /json/)
-    .expect(200)
-  expect(response.body).toHaveLength(initialBlogs.length)
-})
+describe('viewing all blogs', () => {
+  test('it should get all blogs', async () => {
+    const response = await request(app).get('/api/blogs')
+      .expect('Content-Type', /json/)
+      .expect(200)
+    expect(response.body).toHaveLength(initialBlogs.length)
+  })
 
-test('it should check that the blog has a id property', async () => {
-  const response = await request(app).get('/api/blogs')
-    .expect('Content-Type', /json/)
-    .expect(200)
+  test('it should check that the blog has a id property', async () => {
+    const response = await request(app).get('/api/blogs')
+      .expect('Content-Type', /json/)
+      .expect(200)
 
-  response.body.forEach(blog => {
-    expect(blog.id).toBeDefined()
+    response.body.forEach(blog => {
+      expect(blog.id).toBeDefined()
+    })
   })
 })
 
-test('it should to create a new blog', async () => {
-  await request(app).post('/api/blogs')
-    .send(newBlog)
-    .set('Accept', 'application/json')
-    .expect(201)
+describe('trying to create a new blog', () => {
+  test('it should to create a new blog', async () => {
+    await request(app).post('/api/blogs')
+      .send(newBlog)
+      .set('Accept', 'application/json')
+      .expect(201)
 
-  const response = await request(app).get('/api/blogs')
-    .expect('Content-Type', /json/)
-    .expect(200)
-  expect(response.body).toHaveLength(initialBlogs.length + 1)
+    const response = await request(app).get('/api/blogs')
+      .expect('Content-Type', /json/)
+      .expect(200)
+    expect(response.body).toHaveLength(initialBlogs.length + 1)
+  })
+
+  test('it should to check if likes is isset', async () => {
+    await request(app).post('/api/blogs')
+      .send(newBlogWithoutLikes)
+      .set('Accept', 'application/json')
+      .expect(201)
+    const blogWithoutLikes = await Blog.findOne({ author: 'David without likes' }).select('likes').exec()
+    expect(blogWithoutLikes.likes).toBe(0)
+  })
+
+  test('it should to return a status code 400 Bad Request', async () => {
+    await request(app).post('/api/blogs')
+      .send(newBlogWithoutTitleAndUrl)
+      .set('Accept', 'application/json')
+      .expect(400)
+  })
 })
 
-test('it should to check if likes is isset', async () => {
-  await request(app).post('/api/blogs')
-    .send(newBlogWithoutLikes)
-    .set('Accept', 'application/json')
-    .expect(201)
-  const blogWithoutLikes = await Blog.findOne({ author: 'David without likes' }).select('likes').exec()
-  expect(blogWithoutLikes.likes).toBe(0)
+describe('Deleting a post', () => {
+  test('it should to delete a post of the blog', async () => {
+    const postId = await Blog.findOne({ author: 'David' }).select('id').exec()
+
+    await request(app).delete(`/api/blogs/${postId.id}`)
+      .expect(204)
+
+    await request(app).get(`/api/blogs/${postId.id}`)
+      .expect(404)
+  })
 })
 
-test('it should to return a status code 400 Bad Request', async () => {
-  await request(app).post('/api/blogs')
-    .send(newBlogWithoutTitleAndUrl)
-    .set('Accept', 'application/json')
-    .expect(400)
+describe('Updating a post', () => {
+  test('it should to update a post of the blog', async () => {
+    const post = await Blog.findOne({ author: 'David' }).select('id likes').exec()
+    expect(post.likes).toBe(3)
+
+    const response = await request(app).put(`/api/blogs/${post.id}`)
+      .send({ likes: 10 })
+      .set('Accept', 'application/json')
+      .expect(200)
+    expect(response.body.likes).toBe(10)
+  })
 })
 
 afterAll(async () => {
