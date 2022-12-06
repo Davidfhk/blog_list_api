@@ -54,7 +54,7 @@ blogRoutes.delete('/:id', middleware.tokenExtractor, async (request, response) =
 })
 
 blogRoutes.put('/:id', middleware.tokenExtractor, async (request, response) => {
-  const id = request.params.id
+  const id = request.params.id.trim()
   const update = request.body
   const result = await Blog.findByIdAndUpdate(id, update, { new: true })
   if (result === null) {
