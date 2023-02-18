@@ -10,7 +10,8 @@
     "test": "cross-env NODE_ENV=test jest --verbose",
     "build:ui": "rm -rf build && cd ../leccion_02/phone_book && npm run build --prod && cp -r build ../../leccion_03",
     "deploy": "git push",
-    "deploy:full": "npm run build:ui && git add . && git commit -m uibuild && npm run deploy"
+    "deploy:full": "npm run build:ui && git add . && git commit -m uibuild && npm run deploy",
+    "start:test": "cross-env NODE_ENV=test node index.js"
   },
   "repository": {
     "type": "git",
